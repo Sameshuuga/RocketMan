@@ -17,14 +17,14 @@ class RocketMan:
         pygame.display.set_caption('RocketMan')
 
         self.state = 0
+        self.tick = 0
        
 
     def run (self):
         while True:
             #title loop
             while self.state == 0:
-                self.title = Menu(self)
-                self.title_length = len(self.title.menu)
+                self.title = Menu(self, 'title.bmp', ('New_Game.png', 'Place_Holder.png', 'Exit.png'))
                 while self.state == 0:
                     self._events()
                     self.title.blitmenu()
@@ -32,14 +32,14 @@ class RocketMan:
                 del self.title
             #game loop
             while self.state == 1:
-                self.rocket = Rocket(self)
-                self.astroidlist = [Astroid(self)]
+                self.rocket = Rocket(self, 'images/rocket')
+                self.astroidlist = [Astroid(self, 'images/astroid')]
                 while self.state == 1:
                     self._events()
                     self._update()
                     self._tick()
                 del self.rocket, self.astroidlist
-            if self.state == self.title_length:
+            if self.state == 3:
                 sys.exit()
            
 
@@ -86,20 +86,23 @@ class RocketMan:
 
     def _update(self):
         if self.state == 1:
-            self.rocket.update()
-        if random.randint(0, self.settings.spawn_rate) == 1:
-            self.astroidlist.append(Astroid(self))
-        for astroid in self.astroidlist:
-            astroid.move()
-            if pygame.Rect.colliderect(self.rocket.rect, astroid.rect): ## astroid collision flag 
-                self.rocket.collide = True
-            if astroid.rect.y > astroid.screen_rect.bottom:
-                del astroid
+            self.rocket.update(self)
+            if random.randint(0, self.settings.spawn_rate) == 1: #astroid spawning
+                self.astroidlist.append(Astroid(self, 'images/astroid'))
+            for astroid in self.astroidlist:
+                astroid.move(self)
+                if pygame.Rect.colliderect(self.rocket.rect, astroid.rect): ## astroid collision flag 
+                    self.rocket.collide = True
+                if astroid.rect.y > astroid.screen_rect.bottom:
+                    del astroid
         
 
     def _tick (self):
         pygame.display.flip()
         self.clock.tick(60)
+        self.tick += 1
+        if self.tick == 60:
+            self.tick = 0 
         self.screen.fill(self.settings.bgcolor)
 
 

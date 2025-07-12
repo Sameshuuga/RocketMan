@@ -4,25 +4,26 @@ import pygame
 from settings import Settings
 
 class Menu:
-    """class for managing title screen"""
+    """class for managing title screen
+        pass the game and images for title and buttons"""
 
-    def __init__(self, game):
+    def __init__(self, game, title, buttonlist = None):
         self.screen = game.screen
         self.screen_rect = game.screen.get_rect()
         self.settings = Settings()
 
         #title drawing controls
-        self.title = pygame.image.load(Path('images/title.bmp')).convert()
+        self.title = pygame.image.load(Path(f'images/menu/{title}')).convert()
         self.title.set_colorkey('white')
         self.title_rect = self.title.get_rect()
         self.title_rect.midtop = self.screen_rect.midtop
 
-        #menu controls, !!!!!!!!!!!!!!! need to add logic to append buttons based on passed paramter
-        self.menu = [Button(self, 'images/New_Game.png')]
-        self.menu.append(Button(self, 'images/Place_Holder.png', self.menu[0].image_rect))
-        self.menu.append(Button(self, 'images/Exit.png',  self.menu[1].image_rect))
+        #menu controls
+        self.menu = [Button(self, f'images/menu/{buttonlist[0]}')]
+        for image in buttonlist[1:]:
+            self.menu.append(Button(self, f'images/menu/{image}', self.menu[buttonlist.index(image) - 1].image_rect))
         self.option = 0 #controls key value for selecting menu item
-        self.selector = pygame.image.load(Path('images/astroid/0001.png')).convert()
+        self.selector = pygame.image.load(Path('images/menu/selector.png')).convert()
         self.selector_rect = self.selector.get_rect(midright = self.menu[0].image_rect.midleft)
 
 
@@ -34,7 +35,7 @@ class Menu:
 
     def menu_select (self, increment = 0, game = None, key = None):
         ## moves the selector
-        if self.option >= 0 and self.option <= len(self.menu) - 1: ### !!! need to fix selector, breaks if = 0 or = len
+        if self.option >= 0 and self.option <= len(self.menu) - 1: 
             self.option += increment
             if self.option < 0:
                 self.option = 0
@@ -43,8 +44,7 @@ class Menu:
             self.selector_rect.midright = self.menu[self.option].image_rect.midleft
         if key == pygame.K_SPACE:
             game.state = self.option + 1
-        print(self.option)
-
+            
 class Button:
     """class for creating GUI menu items
         Pass the menu and a file path the Button's image, also pass an optional reference rect"""
